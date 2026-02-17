@@ -104,7 +104,7 @@ export default function Products() {
 
     if (!price || price <= 0) return;
     if (discountedPrice > 0 && discountedPrice < price) {
-      discount = Math.round(((price - discountedPrice) / price) * 100);
+      discount = Number((((price - discountedPrice) / price) * 100).toFixed(4));
     }
 
     const payload = {
@@ -231,6 +231,7 @@ export default function Products() {
             <input
               type="number"
               min="1"
+              step="0.01"
               placeholder="Price"
               className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
               value={form.price}
@@ -239,6 +240,7 @@ export default function Products() {
             <input
               type="number"
               min="0"
+              step="0.01"
               placeholder="Discounted Price"
               className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
               value={form.discountedPrice}
