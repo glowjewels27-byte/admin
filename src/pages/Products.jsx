@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../utils/api.js";
 import AdminLayout from "../components/AdminLayout.jsx";
 
+const categoryOptions = ["Necklaces", "Earrings", "Rings", "Bracelets", "Anklets", "Combos"];
+const occasionOptions = ["Daily", "Party", "Festive"];
+
 const initialForm = {
   name: "",
   category: "",
@@ -165,18 +168,34 @@ export default function Products() {
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
           />
           <div className="grid grid-cols-2 gap-3">
-            <input
-              placeholder="Category"
+            <select
               className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
               value={form.category}
               onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
-            />
-            <input
-              placeholder="Type"
+            >
+              <option value="" className="text-black">
+                Category
+              </option>
+              {categoryOptions.map((cat) => (
+                <option key={cat} value={cat} className="text-black">
+                  {cat}
+                </option>
+              ))}
+            </select>
+            <select
               className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
               value={form.type}
               onChange={(e) => setForm((prev) => ({ ...prev, type: e.target.value }))}
-            />
+            >
+              <option value="" className="text-black">
+                Occasion
+              </option>
+              {occasionOptions.map((occ) => (
+                <option key={occ} value={occ} className="text-black">
+                  {occ}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <input
