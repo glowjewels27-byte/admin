@@ -11,7 +11,6 @@ const initialForm = {
   type: "",
   price: "",
   discountedPrice: "",
-  discount: "",
   description: "",
   images: [],
   imageUrlInput: "",
@@ -101,7 +100,7 @@ export default function Products() {
     e.preventDefault();
     const price = Number(form.price);
     const discountedPrice = Number(form.discountedPrice || 0);
-    let discount = Number(form.discount || 0);
+    let discount = 0;
 
     if (!price || price <= 0) return;
     if (discountedPrice > 0 && discountedPrice < price) {
@@ -147,7 +146,6 @@ export default function Products() {
       type: product.type,
       price: product.price,
       discountedPrice: discountedPrice < product.price ? discountedPrice : "",
-      discount: product.discount,
       description: product.description,
       images: normalizeImages(product.images || []),
       imageUrlInput: "",
@@ -173,8 +171,8 @@ export default function Products() {
                 <div>
                   <p className="font-medium">{product.name}</p>
                   <p className="text-xs text-white/60">
-                    {product.category} • ₹{product.price}
-                    {product.discount > 0 && ` • ${product.discount}% off`}
+                    {product.category} • ₹{Math.round(product.price * (1 - (product.discount || 0) / 100))}
+                    {product.discount > 0 && <span className="ml-1 line-through">₹{product.price}</span>}
                     {!product.isActive && " • Hidden"}
                   </p>
                 </div>
@@ -251,20 +249,14 @@ export default function Products() {
             <input
               type="number"
               min="0"
-              max="99"
-              placeholder="Discount % (optional)"
-              className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
-              value={form.discount}
-              onChange={(e) => setForm((prev) => ({ ...prev, discount: e.target.value }))}
-            />
-            <input
-              type="number"
-              min="0"
               placeholder="Stock"
               className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
               value={form.stock}
               onChange={(e) => setForm((prev) => ({ ...prev, stock: e.target.value }))}
             />
+            <div className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white/70">
+              Discount auto-calculated from Price and Discounted Price
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <input
