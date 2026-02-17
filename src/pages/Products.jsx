@@ -31,6 +31,37 @@ export default function Products() {
     load();
   }, []);
 
+  const filesToDataUrls = async (fileList) => {
+    const files = Array.from(fileList || []);
+    const conversions = files.map(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        })
+    );
+    return Promise.all(conversions);
+  };
+
+  const onLocalImagePick = async (e) => {
+    const pickedFiles = e.target.files;
+    if (!pickedFiles?.length) return;
+    const uploaded = await filesToDataUrls(pickedFiles);
+    setForm((prev) => {
+      const existing = prev.images
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      return {
+        ...prev,
+        images: [...existing, ...uploaded].join(", ")
+      };
+    });
+    e.target.value = "";
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     const price = Number(form.price);
@@ -190,6 +221,16 @@ export default function Products() {
             value={form.images}
             onChange={(e) => setForm((prev) => ({ ...prev, images: e.target.value }))}
           />
+          <label className="block">
+            <span className="text-xs uppercase tracking-[0.2em] text-white/60">Upload local photos</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onLocalImagePick}
+              className="mt-2 w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-1 file:text-xs file:text-black"
+            />
+          </label>
           <input
             placeholder="Tags (comma-separated)"
             className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
