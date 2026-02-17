@@ -65,6 +65,21 @@ export default function Products() {
     e.target.value = "";
   };
 
+  const removeImageAt = (indexToRemove) => {
+    setForm((prev) => {
+      const images = prev.images
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .filter((_, idx) => idx !== indexToRemove);
+      return { ...prev, images: images.join(", ") };
+    });
+  };
+
+  const clearAllImages = () => {
+    setForm((prev) => ({ ...prev, images: "" }));
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     const price = Number(form.price);
@@ -272,15 +287,35 @@ export default function Products() {
             Show on storefront
           </label>
           {!!form.images && (
-            <div className="grid grid-cols-3 gap-2">
-              {form.images
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .slice(0, 3)
-                .map((img) => (
-                  <img key={img} src={img} alt="preview" className="h-16 w-full object-cover rounded-lg border border-white/10" />
-                ))}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-[0.2em] text-white/60">Preview</span>
+                <button
+                  type="button"
+                  onClick={clearAllImages}
+                  className="text-[11px] uppercase tracking-[0.15em] text-red-300"
+                >
+                  Clear all
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {form.images
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .map((img, idx) => (
+                    <div key={`${img}-${idx}`} className="relative">
+                      <img src={img} alt="preview" className="h-16 w-full object-cover rounded-lg border border-white/10" />
+                      <button
+                        type="button"
+                        onClick={() => removeImageAt(idx)}
+                        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white text-xs leading-5"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
           <button
