@@ -13,7 +13,8 @@ const initialForm = {
   discountedPrice: "",
   discount: "",
   description: "",
-  images: "",
+  images: [],
+  imageUrlInput: "",
   stock: "",
   tags: "",
   isActive: true
@@ -34,6 +35,25 @@ export default function Products() {
     load();
   }, []);
 
+  const normalizeImages = (rawImages = []) => {
+    const input = Array.isArray(rawImages) ? rawImages : [];
+    const normalized = [];
+    for (let i = 0; i < input.length; i += 1) {
+      const current = String(input[i] || "").trim();
+      if (!current) continue;
+
+      // Recover previously corrupted data URLs that were split by comma.
+      if (current.startsWith("data:image") && !current.includes("base64,") && input[i + 1]) {
+        normalized.push(`${current},${String(input[i + 1]).trim()}`);
+        i += 1;
+        continue;
+      }
+
+      normalized.push(current);
+    }
+    return normalized;
+  };
+
   const filesToDataUrls = async (fileList) => {
     const files = Array.from(fileList || []);
     const conversions = files.map(
@@ -52,32 +72,29 @@ export default function Products() {
     const pickedFiles = e.target.files;
     if (!pickedFiles?.length) return;
     const uploaded = await filesToDataUrls(pickedFiles);
-    setForm((prev) => {
-      const existing = prev.images
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      return {
-        ...prev,
-        images: [...existing, ...uploaded].join(", ")
-      };
-    });
+    setForm((prev) => ({
+      ...prev,
+      images: Array.from(new Set([...(prev.images || []), ...uploaded]))
+    }));
     e.target.value = "";
   };
 
   const removeImageAt = (indexToRemove) => {
-    setForm((prev) => {
-      const images = prev.images
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .filter((_, idx) => idx !== indexToRemove);
-      return { ...prev, images: images.join(", ") };
-    });
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== indexToRemove) }));
   };
 
   const clearAllImages = () => {
-    setForm((prev) => ({ ...prev, images: "" }));
+    setForm((prev) => ({ ...prev, images: [] }));
+  };
+
+  const addImageUrl = () => {
+    const value = form.imageUrlInput.trim();
+    if (!value) return;
+    setForm((prev) => ({
+      ...prev,
+      images: Array.from(new Set([...(prev.images || []), value])),
+      imageUrlInput: ""
+    }));
   };
 
   const submit = async (e) => {
@@ -100,7 +117,6 @@ export default function Products() {
       description: form.description.trim(),
       stock: Number(form.stock),
       images: form.images
-        .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
       tags: form.tags
@@ -133,7 +149,8 @@ export default function Products() {
       discountedPrice: discountedPrice < product.price ? discountedPrice : "",
       discount: product.discount,
       description: product.description,
-      images: product.images?.join(", "),
+      images: normalizeImages(product.images || []),
+      imageUrlInput: "",
       stock: product.stock,
       tags: product.tags?.join(", ") || "",
       isActive: product.isActive
@@ -249,12 +266,21 @@ export default function Products() {
               onChange={(e) => setForm((prev) => ({ ...prev, stock: e.target.value }))}
             />
           </div>
-          <input
-            placeholder="Images (comma-separated URLs)"
-            className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
-            value={form.images}
-            onChange={(e) => setForm((prev) => ({ ...prev, images: e.target.value }))}
-          />
+          <div className="flex items-center gap-2">
+            <input
+              placeholder="Paste image URL"
+              className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm"
+              value={form.imageUrlInput}
+              onChange={(e) => setForm((prev) => ({ ...prev, imageUrlInput: e.target.value }))}
+            />
+            <button
+              type="button"
+              onClick={addImageUrl}
+              className="rounded-lg border border-white/20 px-3 py-2 text-xs uppercase tracking-[0.2em]"
+            >
+              Add
+            </button>
+          </div>
           <label className="block">
             <span className="text-xs uppercase tracking-[0.2em] text-white/60">Upload local photos</span>
             <input
@@ -286,7 +312,7 @@ export default function Products() {
             />
             Show on storefront
           </label>
-          {!!form.images && (
+          {!!form.images.length && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-[0.2em] text-white/60">Preview</span>
@@ -300,9 +326,6 @@ export default function Products() {
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {form.images
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
                   .map((img, idx) => (
                     <div key={`${img}-${idx}`} className="relative">
                       <img src={img} alt="preview" className="h-16 w-full object-cover rounded-lg border border-white/10" />
