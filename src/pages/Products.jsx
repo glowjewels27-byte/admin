@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../utils/api.js";
 import AdminLayout from "../components/AdminLayout.jsx";
 
-const categoryOptions = ["Necklaces", "Earrings", "Rings", "Bracelets", "Anklets", "Combos"];
+const categoryOptions = ["Necklaces", "Earrings", "Rings", "Bracelets", "Anklets", "Combos", "Purse"];
 const occasionOptions = ["Daily", "Party", "Festive"];
 
 const initialForm = {
