@@ -5,7 +5,8 @@ const links = [
   { to: "/products", label: "Products" },
   { to: "/categories", label: "Categories" },
   { to: "/orders", label: "Orders" },
-  { to: "/users", label: "Users" }
+  { to: "/users", label: "Users" },
+  { to: "/nfc", label: "NFC Pages" }
 ];
 
 export default function Sidebar() {

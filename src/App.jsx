@@ -5,6 +5,7 @@ import Products from "./pages/Products.jsx";
 import Categories from "./pages/Categories.jsx";
 import Orders from "./pages/Orders.jsx";
 import Users from "./pages/Users.jsx";
+import NfcExperiences from "./pages/NfcExperiences.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
@@ -48,6 +49,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Users />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/nfc"
+        element={
+          <ProtectedRoute>
+            <NfcExperiences />
           </ProtectedRoute>
         }
       />
